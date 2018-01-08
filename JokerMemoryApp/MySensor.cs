@@ -28,7 +28,6 @@ namespace JokerMemoryApp
 
         public void ShowSenserList(TextView text)
         {
-            //再度テストコメント
             if (text == null) { return; }
 
             StringBuilder strBuild = new StringBuilder();
