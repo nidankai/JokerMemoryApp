@@ -1,11 +1,12 @@
 ﻿using Android.App;
 using Android.Widget;
 using Android.OS;
-using Android.Views;
-using Android.Media;
 using Android.Hardware;
-using System.Text;
 using Android.Content;
+using Android.Runtime;
+using System;
+using System.Reflection;
+using System.Text;
 
 namespace JokerMemoryApp
 {
@@ -13,45 +14,43 @@ namespace JokerMemoryApp
     public class MainActivity : Activity, ISensorEventListener
     {
         private ViewCreator viewCreator;
-        private JokerSoundPlayer jokerSoundPlayer;
-        private MySensor mySensor;
-
-        private SensorManager _sensorManager;
-        private Sensor _Accelerometer;
+        private SensorManager sensorManager;
+        private Sensor mAcc;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            // Set our view from the "main" layout resource
+            //SetContentView(Resource.Layout.Main);
 
             viewCreator = new ViewCreator();
-            jokerSoundPlayer = new JokerSoundPlayer();
-            mySensor = new MySensor(this);
-
-            _sensorManager = (SensorManager)GetSystemService(Context.SensorService);
-            _Accelerometer = _sensorManager.GetDefaultSensor(SensorType.Accelerometer);
-
-
             SetContentView(viewCreator.Layout);
 
-#if true
-            mySensor.ShowSenserList(viewCreator.Text);
-#endif
-
-            viewCreator.Button.Click += (sender, e) =>
-            {
-                Toast.MakeText(this, "メッセージ", ToastLength.Short).Show();
-                jokerSoundPlayer.PlayClickedSound();
-            };
-
+            sensorManager = (SensorManager)GetSystemService(SensorService);
+            mAcc = sensorManager.GetDefaultSensor(SensorType.Accelerometer);
         }
 
-        public void OnAccuracyChanged(Sensor sensor, SensorStatus accuracy)
+        protected override void OnResume()
         {
-            throw new System.NotImplementedException();
+            base.OnResume();
+            sensorManager.RegisterListener(this, mAcc, SensorDelay.Normal);
+        }
+
+        protected override void OnPause()
+        {
+            base.OnPause();
+            sensorManager.UnregisterListener(this);
+        }
+
+        public void OnAccuracyChanged(Sensor sensor, [GeneratedEnum] SensorStatus accuracy)
+        {
+            //throw new System.NotImplementedException();
         }
 
         public void OnSensorChanged(SensorEvent e)
         {
+            //throw new System.NotImplementedException();
+            Console.WriteLine(MethodBase.GetCurrentMethod());
             StringBuilder strBuild = new StringBuilder();
 
             strBuild.Append("X軸");
