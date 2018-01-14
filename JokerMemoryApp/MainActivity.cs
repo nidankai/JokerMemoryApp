@@ -45,12 +45,12 @@ namespace JokerMemoryApp
 
         }
 
-        void ISensorEventListener.OnAccuracyChanged(Sensor sensor, SensorStatus accuracy)
+        public void OnAccuracyChanged(Sensor sensor, SensorStatus accuracy)
         {
             throw new System.NotImplementedException();
         }
 
-        void ISensorEventListener.OnSensorChanged(SensorEvent e)
+        public void OnSensorChanged(SensorEvent e)
         {
             StringBuilder strBuild = new StringBuilder();
 

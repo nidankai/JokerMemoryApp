@@ -32,7 +32,7 @@ namespace JokerMemoryApp
             Layout.AddView(Text);
         }
 
-        public void CreateView()
+        private void CreateView()
         {
             Layout = new RelativeLayout(Application.Context);
             Button = new Button(Application.Context);
