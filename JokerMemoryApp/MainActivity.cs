@@ -13,33 +13,40 @@ namespace JokerMemoryApp
     [Activity(Label = "JokerMemoryApp", MainLauncher = true)]
     public class MainActivity : Activity, ISensorEventListener
     {
-        private ViewCreator viewCreator;
-        private SensorManager sensorManager;
-        private Sensor mAcc;
+        private ViewCreator _viewCreator;
+        private JokerSoundPlayer _jokerSoundPlayer;
+        private SensorManager _sensorManager;
+        private Sensor _accelerometer;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            // Set our view from the "main" layout resource
-            //SetContentView(Resource.Layout.Main);
 
-            viewCreator = new ViewCreator();
-            SetContentView(viewCreator.Layout);
+            _viewCreator = new ViewCreator();
+            SetContentView(_viewCreator.Layout);
 
-            sensorManager = (SensorManager)GetSystemService(SensorService);
-            mAcc = sensorManager.GetDefaultSensor(SensorType.Accelerometer);
+            _jokerSoundPlayer = new JokerSoundPlayer();
+
+            _sensorManager = (SensorManager)GetSystemService(SensorService);
+            _accelerometer = _sensorManager.GetDefaultSensor(SensorType.Accelerometer);
+
+            _viewCreator.Button.Click += (sender, e) =>
+            {
+                Toast.MakeText(this, "メッセージ", ToastLength.Short).Show();
+                _jokerSoundPlayer.PlayClickedSound();
+            };
         }
 
         protected override void OnResume()
         {
             base.OnResume();
-            sensorManager.RegisterListener(this, mAcc, SensorDelay.Normal);
+            _sensorManager.RegisterListener(this, _accelerometer, SensorDelay.Normal);
         }
 
         protected override void OnPause()
         {
             base.OnPause();
-            sensorManager.UnregisterListener(this);
+            _sensorManager.UnregisterListener(this);
         }
 
         public void OnAccuracyChanged(Sensor sensor, [GeneratedEnum] SensorStatus accuracy)
@@ -50,20 +57,19 @@ namespace JokerMemoryApp
         public void OnSensorChanged(SensorEvent e)
         {
             //throw new System.NotImplementedException();
-            Console.WriteLine(MethodBase.GetCurrentMethod());
             StringBuilder strBuild = new StringBuilder();
 
             strBuild.Append("X軸");
             strBuild.Append(e.Values[0]);
-            strBuild.Append("\n ");
+            strBuild.Append(",\n ");
             strBuild.Append("Y軸");
             strBuild.Append(e.Values[1]);
             strBuild.Append(",\n");
             strBuild.Append("Z軸");
             strBuild.Append(e.Values[2]);
-            strBuild.Append("\n");
+            strBuild.Append(",\n");
 
-            viewCreator.Text.Text = strBuild.ToString();
+            _viewCreator.Text.Text = strBuild.ToString();
         }
     }
 }
