@@ -18,15 +18,21 @@ namespace JokerMemoryApp
         private SensorManager _sensorManager;
         private Sensor _accelerometer;
 
+        private const float k = 0.1F;
+        private float lowPassX;
+        private float lowPassY;
+        private float lowPassZ;
+        private float rawAx;
+        private float rawAy;
+        private float rawAz;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
             _viewCreator = new ViewCreator();
             SetContentView(_viewCreator.Layout);
-
             _jokerSoundPlayer = new JokerSoundPlayer();
-
             _sensorManager = (SensorManager)GetSystemService(SensorService);
             _accelerometer = _sensorManager.GetDefaultSensor(SensorType.Accelerometer);
 
@@ -59,14 +65,22 @@ namespace JokerMemoryApp
             //throw new System.NotImplementedException();
             StringBuilder strBuild = new StringBuilder();
 
+            lowPassX = (e.Values[0] - lowPassX) * k;
+            lowPassY = (e.Values[1] - lowPassY) * k;
+            lowPassZ = (e.Values[2] - lowPassZ) * k;
+
+            rawAx = e.Values[0] - lowPassX;
+            rawAy = e.Values[1] - lowPassY;
+            rawAz = e.Values[2] - lowPassZ;
+
             strBuild.Append("X軸");
-            strBuild.Append(e.Values[0]);
-            strBuild.Append(",\n ");
+            strBuild.Append(lowPassX);
+            strBuild.Append(",\n");
             strBuild.Append("Y軸");
-            strBuild.Append(e.Values[1]);
+            strBuild.Append(lowPassY);
             strBuild.Append(",\n");
             strBuild.Append("Z軸");
-            strBuild.Append(e.Values[2]);
+            strBuild.Append(lowPassZ);
             strBuild.Append(",\n");
 
             _viewCreator.Text.Text = strBuild.ToString();
