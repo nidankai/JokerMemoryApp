@@ -29,7 +29,7 @@ namespace JokerMemoryApp
         private double ax;
         private double ay;
         private double az;
-
+        //test
         private readonly int MATRIX_SIZE = 16;
         private float[] mgValues = new float[3];
         private float[] acValues = new float[3];
