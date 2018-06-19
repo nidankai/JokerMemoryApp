@@ -26,6 +26,9 @@ namespace JokerMemoryApp
         private float rawAx;
         private float rawAy;
         private float rawAz;
+        private double ax;
+        private double ay;
+        private double az;
 
         private readonly int MATRIX_SIZE = 16;
         private float[] mgValues = new float[3];
@@ -48,7 +51,7 @@ namespace JokerMemoryApp
                 _jokerSoundPlayer.PlayClickedSound();
             };
         }
-
+        //test
         protected override void OnResume()
         {
             base.OnResume();
@@ -83,13 +86,19 @@ namespace JokerMemoryApp
             float[] I = new float[MATRIX_SIZE];
             float[] orValues = new float[3];
 
-            lowPassX = (e.Values[0] - lowPassX) * k;
-            lowPassY = (e.Values[1] - lowPassY) * k;
-            lowPassZ = (e.Values[2] - lowPassZ) * k;
+            double nPitchRad = 0;
+            double sinNPitch = 0;
+            double cosNPitch = 0;
 
-            rawAx = e.Values[0] - lowPassX;
-            rawAy = e.Values[1] - lowPassY;
-            rawAz = e.Values[2] - lowPassZ;
+            double nRollRad = 0;
+            double sinNRoll = 0;
+            double cosNRoll = 0;
+
+            double bx, by; // 一時退避
+
+            double nAzimuthRad;
+            double sinNAzimuth;
+            double cosNAzimuth;
 
             switch (e.Sensor.Type)
             {
@@ -107,6 +116,35 @@ namespace JokerMemoryApp
 
                 SensorManager.RemapCoordinateSystem(inR, Axis.X, Axis.Y, outR);
                 SensorManager.GetOrientation(outR, orValues);
+
+                lowPassX = (acValues[0] - lowPassX) * k;
+                lowPassY = (acValues[1] - lowPassY) * k;
+                lowPassZ = (acValues[2] - lowPassZ) * k;
+
+                rawAx = acValues[0] - lowPassX;
+                rawAy = acValues[1] - lowPassY;
+                rawAz = acValues[2] - lowPassZ;
+
+                // ピッチ・ロール
+                nPitchRad = (orValues[1] * 180 / Math.PI);
+                sinNPitch = Math.Sin(nPitchRad);
+                cosNPitch = Math.Cos(nPitchRad);
+
+                nRollRad = (orValues[2] * 180 / Math.PI);
+                sinNRoll = Math.Sin(nRollRad);
+                cosNRoll = Math.Cos(nRollRad);
+
+                bx = rawAx * cosNRoll + rawAz * sinNRoll;
+                by = rawAx * sinNPitch * sinNRoll + rawAy * cosNPitch - rawAz * sinNPitch * cosNRoll;
+                az = -rawAx * cosNPitch * sinNRoll + rawAy * sinNPitch * cosNRoll + rawAz * cosNPitch * cosNRoll;
+
+                nAzimuthRad = (orValues[0] * 180 / Math.PI);
+                sinNAzimuth = Math.Sin(nAzimuthRad);
+                cosNAzimuth = Math.Cos(nAzimuthRad);
+
+                ax = bx * cosNAzimuth - by * sinNAzimuth;
+                ay = bx * sinNAzimuth + by * cosNAzimuth;
+                Console.WriteLine(MethodInfo.GetCurrentMethod());
             }
 
             strBuild.Append("X軸");
@@ -127,6 +165,16 @@ namespace JokerMemoryApp
             strBuild.Append(",\n");
             strBuild.Append("回転角（ロール）");
             strBuild.Append(Rad2Deg(orValues[2]));
+            strBuild.Append(",\n");
+
+            strBuild.Append("x座標");
+            strBuild.Append(ax);
+            strBuild.Append(",\n");
+            strBuild.Append("y座標");
+            strBuild.Append(ay);
+            strBuild.Append(",\n");
+            strBuild.Append("z座標");
+            strBuild.Append(az);
             strBuild.Append(",\n");
 
             _viewCreator.Text.Text = strBuild.ToString();
